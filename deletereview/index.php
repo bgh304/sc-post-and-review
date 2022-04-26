@@ -1,20 +1,8 @@
 <?php
 $path = preg_replace('/wp-content.*$/','',__DIR__);
-
 require_once($path . "wp-load.php");
 
-$trackid = $_GET['id'];
-global $db_version; //TODO: tarvitseeko tätä?
-
-global $wpdb;
-
-$trackresult = $wpdb->get_results("SELECT * FROM wp_sctracks WHERE id='$trackid'");
-
-foreach ($trackresult as $print)
-{
-    $artist = $print->artistname;
-    $track = $print->trackname;
-}
+$id = $_GET['id'];
 
 echo <<<HTML
     <body style="background-color: #E5E7E9; font-family: arial;">
@@ -36,7 +24,7 @@ echo <<<HTML
         }
     </style>
     <div style="padding: 10px; width: 500px;">
-        <h2>Delete "$artist - $track"?</h2>
+        <h2>Delete review (review ID: $id)?</h2>
         <form method="post">
             <input type="submit" class="button yesbtn" name="yes" value="YES">
             <input type="submit" class="button nobtn" name="no" value="NO">
@@ -47,13 +35,11 @@ HTML;
 
 if (isset($_POST['yes']))
 {
-    $wpdb->delete($wpdb->prefix . 'screviews', array('trackId' => $trackid), $format=NULL);
-    $wpdb->delete($wpdb->prefix . 'sctracks', array('id' => $trackid), $format=NULL);
-
-    wp_redirect(esc_url(add_query_arg('', '', 'http://localhost/plugarit/wp-admin/admin.php?page=sc-post-and-review-admin-menu')), 301); //TODO: muuta path
+    $wpdb->delete($wpdb->prefix . 'screviews', array('id' => $id), $format=NULL);
+    wp_redirect(esc_url(add_query_arg('', '', home_url( 'wp-admin/admin.php?page=tracks-and-reviews' ) ) ), 301);
 }
 
 if (isset($_POST['no']))
 {
-    wp_redirect(esc_url(add_query_arg('', '', 'http://localhost/plugarit/wp-admin/admin.php?page=sc-post-and-review-admin-menu')), 301); //TODO: muuta path
+    wp_redirect(esc_url(add_query_arg('', '', home_url( 'wp-admin/admin.php?page=tracks-and-reviews' ) ) ), 301);
 }

@@ -1,16 +1,11 @@
 <?php
 $path = preg_replace('/wp-content.*$/','',__DIR__);
-
 require_once($path . "wp-load.php");
 
-
-
 $trackid = $_GET['id'];
-global $db_version; //TODO: tarvitseeko tätä?
 
-global $wpdb;
-
-$trackresult = $wpdb->get_results("SELECT * FROM wp_sctracks WHERE id='$trackid'");
+$table_name_tracks = $wpdb->prefix . 'sctracks';
+$trackresult = $wpdb->get_results("SELECT * FROM $table_name_tracks WHERE id='$trackid'");
 
 foreach ($trackresult as $print)
 {
@@ -22,36 +17,12 @@ foreach ($trackresult as $print)
     $iframe = $print->iframe;
 }
 
-/*
-echo <<<HTML
-    <style>
-        .button {
-            border: none;
-            width: 500px;
-            height: 100px;
-            margin-top: 20px;
-            font-size: 15px;
-            font-weight: bold;
-            font-size: 30px;
-        }
-        .button:hover {background-color: gray}
-        .button:active {background-color: black; color: white; }
-    </style>
-    <div style="text-align: center; padding-top: 15%;">
-        <p style="font-family: arial; font-size: 30px;">Thank you for your review <b>$reviewer</b>!</p>
-        <button id="back" class="button">GO BACK</button>
-        <script>
-            function go_back() {
-                window.history.back();
-            }
-            let button = document.getElementById("back");
-            button.addEventListener('click', event => {go_back()});
-        </script>
-    </div>
-HTML;
-*/
+// Fixing strings to correct form
+$artist = str_replace( "\'", "'", $artist );
+$artist = str_replace( "\\\"", "\"", $artist );
+$track = str_replace( "\'", "'", $track );
+$track = str_replace( "\\\"", "\"", $track );
 
-//TODO: stailaa sivu samanlaiseksi kuin thankyou-sivu, muuta nappien värit
 echo <<<HTML
     <body style="background-color: #E5E7E9; font-family: arial;">
     <style>
@@ -61,6 +32,14 @@ echo <<<HTML
             border: none;
             border-radius: 3px;
             margin-bottom: 5px;
+        }
+        textarea {
+            height: 50px;
+            width: 270px;
+            border: none;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            resize: both;
         }
         .button {
             width: 20%;
@@ -84,8 +63,8 @@ echo <<<HTML
             <input type="text" id="artist_name" name="artist_name" value="$artist"><br />
             <label for="track_name">Track Name</label><br />
             <input type="text" id="track_name" name="track_name" value="$track"><br />
-            <label for="track_iframe">IFrame Code <i>(leave blank for no change)</i></label><br />
-            <input type="text" id="track_iframe" name="track_iframe"><br />
+            <label for="track_iframe">IFrame URL</label><br />
+            <textarea id="track_iframe" name="track_iframe">$iframe</textarea><br />
             <label for="shortcode_param">Shortcode Parameter</label><br />
             <input type="text" id="shortcode_param" name="shortcode_param" value="$shortcode"><br />
             <label for="description">Track Description</label><br />
@@ -119,9 +98,9 @@ if (isset($_POST['savetrack']))
 
     $wpdb->update($wpdb->prefix . 'sctracks', $data, array('id' => $trackid), $format=NULL);
 
-    wp_redirect(esc_url(add_query_arg('', '', 'http://localhost/plugarit/wp-admin/admin.php?page=sc-post-and-review-admin-menu')), 301); //TODO: muuta path
+    wp_redirect(esc_url(add_query_arg('', '', home_url( 'wp-admin/admin.php?page=tracks-and-reviews' ) ) ), 301);
 }
 
 if(isset($_POST['cancel'])) {
-    wp_redirect(esc_url(add_query_arg('', '', 'http://localhost/plugarit/wp-admin/admin.php?page=sc-post-and-review-admin-menu')), 301); //TODO: muuta path
+    wp_redirect(esc_url(add_query_arg('', '', home_url( 'wp-admin/admin.php?page=tracks-and-reviews' ) ) ), 301);
 }

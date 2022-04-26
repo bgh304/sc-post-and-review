@@ -20,3 +20,6 @@ Antti Salonen
 
 * 1.1.0
 	* Tracks management and graphical star scores added
+
+* 1.2.0
+	* Reviews management and frontend appearance config added

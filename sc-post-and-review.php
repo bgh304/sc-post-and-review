@@ -1,155 +1,137 @@
 <?php
 /**
-*Plugin Name: Soundcloud post and review
-*Description: Add Soundcloud track to your page, and let users give reviews for it.
-*Version:     1.0
-*Author:      Antti Salonen
+* Plugin Name: Soundcloud post and review
+* Plugin URI:  https://github.com/bgh304/wp_sc_plugin
+* Description: Add Soundcloud track to your page, and let users give reviews for it.
+* Version:     1.2.0
+* Author:      Antti Salonen
+* Author URI:  https://github.com/bgh304
 **/
 
-include 'sc-post-and-review-shortcode.php';
-include 'sc-post-and-review-tracks-and-reviews.php';
+namespace ScPostAndReview;
+
+require_once 'sc-post-and-review-shortcode.php';
+require_once 'sc-post-and-review-tracks-and-reviews.php';
+require_once 'insert_css_data.php';
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 global $db_version;
 
-function db_install() {
-    global $wpdb;
+class SC_Post_And_Review {
 
-    $table_name_tracks = $wpdb->prefix . 'sctracks';
+    public function __construct() {
+        register_activation_hook( __FILE__, array( $this ,'db_install' ) );
+        add_action('admin_menu', array( $this, 'sc_post_and_review_admin_menu_option' ) );
+        add_shortcode( 'sc_post_and_review', 'sc_post_and_review_function' );
+        add_action( 'admin_enqueue_scripts', 'load_stylesheet' );
+    }
 
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql_tracks = "CREATE TABLE IF NOT EXISTS $table_name_tracks (
-            id int(10) NOT NULL AUTO_INCREMENT,
-            artistname varchar(255) NOT NULL,
-            trackname varchar(255) NOT NULL,
-            iframe text,
-            shortcode text,
-            description text,
-            PRIMARY KEY  (id)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql_tracks);
-
-    $table_name_reviews = $wpdb->prefix . 'screviews';
-
-    $sql_reviews = "CREATE TABLE IF NOT EXISTS $table_name_reviews (
-                    id int(10) NOT NULL AUTO_INCREMENT,
-                    reviewer varchar(255) NOT NULL,
-                    review text,
-                    score int(10),
-                    trackId int(10),
-                    PRIMARY KEY (id),
-                    FOREIGN KEY (trackId) REFERENCES $table_name_tracks(id)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql_reviews);
-}
-register_activation_hook(__FILE__, 'db_install');
-
-function sc_post_and_review_admin_menu_option()
-{
-    add_menu_page('Add Soundcloud Track', 'Add SC Track', 'manage_options', 'sc-post-and-review-admin-menu', 'sc_post_and_review_page', '', 200); //TODO: soundcloud-ikoni
-}
-add_action('admin_menu', 'sc_post_and_review_admin_menu_option');
-
-function sc_post_and_review_page()
-{
-    $path = preg_replace('/wp-content.*$/','',__DIR__);
-    require_once($path.'/wp-load.php');
-    if(isset($_POST['submit']))
-    {
+    static function db_install() {
         global $wpdb;
 
-        $artist_name = $_POST['artist_name'];
-        $track_name = $_POST['track_name'];
-        $track_iframe = $_POST['track_iframe'];
-        $shortcode_param = $_POST['shortcode_param'];
-        $description = $_POST['description'];
+        $table_name_tracks = $wpdb->prefix . 'sctracks';
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql_tracks = "CREATE TABLE IF NOT EXISTS $table_name_tracks (
+                       id int(10) NOT NULL AUTO_INCREMENT,
+                       artistname varchar(255) NOT NULL,
+                       trackname varchar(255) NOT NULL,
+                       iframe text,
+                       shortcode text,
+                       description text,
+                       PRIMARY KEY  (id)
+        ) $charset_collate;";
 
-        print "<b>\"$artist_name - $track_name\"</b> is added to database.";
+        dbDelta( $sql_tracks );
 
-        $wpdb->insert($wpdb->prefix . 'sctracks', array( //TODO: korjaa bugi jossa ennen heittomerkkiä tulee \
-            'artistname'=>$artist_name,
-            'trackname'=>$track_name,
-            'iframe'=>$track_iframe,
-            'shortcode'=>$shortcode_param,
-            'description'=>$description,
-        ));
+        $table_name_reviews = $wpdb->prefix . 'screviews';
+
+        $sql_reviews = "CREATE TABLE IF NOT EXISTS $table_name_reviews (
+                        id int(10) NOT NULL AUTO_INCREMENT,
+                        reviewer varchar(255) NOT NULL,
+                        review text,
+                        score int(10),
+                        trackId int(10),
+                        PRIMARY KEY (id),
+                        FOREIGN KEY (trackId) REFERENCES $table_name_tracks(id)
+        ) $charset_collate;";
+
+        dbDelta( $sql_reviews );
+
+        $table_name_options = $wpdb->prefix . '_options';
+        
+        $send_review_button_color_exists = "SELECT * FROM wp_options WHERE option_id = 'send_review_button_color';";
+
     }
-    ?>
-    <style>
-        .flex-container {
-            display: flex;
-        }
-        .flex-container > div {
-            padding-right: 20px;
-        }
-        .edit-delete-btn {
-            width: 75px;
-            border: none;
-            border-radius: 3px;
-            font-weight: bold;
-            color: white;
-        }
-    </style>
-    <div class="wrap" style="padding-bottom: 20px;">
-        <h2>Add Soundcloud track</h2>
-        <form method="post" action="">
-            <label for="artist_name">Artist Name</label><br />
-            <input type="text" id="artist_name" name="artist_name"><br />
-            <label for="track_name">Track Name</label><br />
-            <input type="text" id="track_name" name="track_name"><br />
-            <label for="track_iframe">IFrame Code</label><br />
-            <input type="text" id="track_iframe" name="track_iframe"><br />
-            <label for="shortcode_param">Shortcode Parameter</label><br />
-            <input type="text" id="shortcode_param" name="shortcode_param"><br />
-            <label for="description">Track Description</label><br />
-            <input type="text" id="description" name="description" style="margin-bottom: 10px;"><br />
-            <input type="submit" name="submit" class="button button-primary" value="ADD TRACK" style="font-weight: bold">
-        </form>
-    </div>
 
-<?php
-list_tracks_and_reviews();
-?>
+    static function sc_post_and_review_admin_menu_option() {
+        add_menu_page(
+            'Add Soundcloud Track',
+            'Add SC Track',
+            'manage_options',
+            'sc-post-and-review-admin-menu',
+            array( __CLASS__, 'sc_post_and_review_page' ),
+            plugin_dir_url( __FILE__ ) . 'assets/soundcloudicon.png',
+            4,
+        );
+        add_submenu_page(
+            'sc-post-and-review-admin-menu',
+            'Manage Tracks and Reviews',
+            'Tracks & Reviews',
+            'manage_options',
+            'tracks-and-reviews',
+            array( __CLASS__, 'tracks_and_reviews_sub_menu' ),
+        );
+        add_submenu_page(
+            'sc-post-and-review-admin-menu',
+            'Config plugin appearance',
+            'Config',
+            'manage_options',
+            'config-appearance',
+            array( __CLASS__, 'config_appearance_menu' ),
+        );
+    }
 
-    <div class="wrap" style="width: 40%">
-        <h2 style="padding-bottom: 10px;">Reviews</h2>
-    </div>
-    <?php
+    static function tracks_and_reviews_sub_menu() {
+        list_tracks_and_reviews();
+    }
+
+    static function config_appearance_menu() {
+        // Rendering config appearance page
+        require_once('html/config-appearance.php');
+
+        $insert_css_data = new Insert_Css_Data();
+        $insert_css_data->insert_css_data();
+    }
+
+    static function sc_post_and_review_page() {
+        // Rendering add track form
+        require_once('html/add-track-form.php');
+
+        if ( isset( $_POST['submit'] ) && ( $_POST['artist_name'] ) != null && ( $_POST['track_name'] ) != null && ( $_POST['track_iframe'] ) != null && ( $_POST['shortcode_param'] ) != null ) {
             global $wpdb;
 
-            $reviewresult = $wpdb->get_results("SELECT * FROM wp_screviews");
-            foreach ($reviewresult as $print)
-            {
-                $id = $print->id;
-                $trackid = $print->trackid;
-                $reviewer = $print->reviewer;
-                $review = $print->review;
-                $score = $print->score;
+            $artist_name = $_POST['artist_name'];
+            $track_name = $_POST['track_name'];
+            $track_iframe = $_POST['track_iframe'];
+            $shortcode_param = $_POST['shortcode_param'];
+            $description = $_POST['description'];
 
-                $renderReviews .= <<<HTML
-                    <div class="flex-container">
-                        <div style="font-weight: bold;">
-                            ID: <br />
-                            Track ID: <br />
-                            Score: <br />
-                            Review: <br />
-                            Reviewer: <br />
-                        </div>
-                        <div>
-                            $id <br />
-                            $trackid <br />
-                            $reviewer <br />
-                            $review <br />
-                            $score <br />
-                        </div>
-                    </div>
-                HTML;
-            }
-    ?>
-<?php
+            $wpdb->insert( $wpdb->prefix . 'sctracks', array(
+                'artistname'=>$artist_name,
+                'trackname'=>$track_name,
+                'iframe'=>$track_iframe,
+                'shortcode'=>$shortcode_param,
+                'description'=>$description,
+            ) );
+
+            echo "<b>\"$artist_name - $track_name\"</b> is added to database.";
+        } elseif ( isset( $_POST['submit'] ) && ( ( $_POST['artist_name'] ) == null || ( $_POST['track_name'] ) == null || ( $_POST['track_iframe'] ) == null || ( $_POST['shortcode_param'] ) == null ) ) {
+            echo "<script>alert('Please give fill all the fields (description can be empty).');</script>";
+        }
+    }
+
+    static function load_stylesheet() {
+        wp_enqueue_style( 'pluginStyles', plugins_url( 'css/styles.css', __FILE__ ), '', time() );
+    }
 }
-add_shortcode('sc_post_and_review', 'sc_post_and_review_function');
+new SC_Post_And_Review();

@@ -1,0 +1,205 @@
+/*ADD-TRACK-FORM.PHP*/
+.add-soundcloud-track {
+    margin-bottom: 20px;
+}
+
+.add-soundcloud-track > h2 {
+    font-size: 200%;
+}
+
+.add-soundcloud-track-description {
+    margin-bottom: 10px;
+}
+
+.add-soundcloud-track > form input[type=submit] {
+    background-color: #0071D3;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 3px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.add-soundcloud-track > form textarea {
+    height: 30px;
+    width: 180px;
+    resize: both;
+}
+
+
+/*ADMIN-TRACKS-AND-REVIEWS.PHP*/
+.admin-tracks-and-reviews-top-container {
+    display: flex;
+    width: 75%;
+}
+
+.admin-tracks-and-reviews-sub-containers {
+    width: 40%;
+    height: 700px;
+    margin-right: 10px;
+    overflow: auto;
+}
+
+.admin-tracks-and-reviews-sub-containers > h2 {
+    padding-bottom: 10px;
+    font-size: 25px;
+}
+
+
+/*TRACK-WP-ADMIN.PHP*/
+.admin-track {
+    width: 300px;
+    display: flex;
+}
+
+.admin-track-attributes {
+    font-weight: bold;
+    margin-right: 15px
+}
+
+.admin-track-btns {
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.admin-track-form > button {
+    width: 75px;
+    border: none;
+    border-radius: 3px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+.admin-track-edit-btn {
+    margin-right: 10px;
+    background-color: #578AB3;
+}
+
+.admin-track-delete-btn {
+    background-color: #E53B3B;
+}
+
+
+/*REVIEW-WP-ADMIN.PHP*/
+.admin-review {
+    width: 300px;
+    display: flex;
+}
+
+.admin-review-attributes {
+    font-weight: bold;
+    margin-right: 15px
+}
+
+.admin-review-btns {
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.admin-review-delete-btn {
+    width: 75px;
+    border: none;
+    border-radius: 3px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-right: 10px;
+    background-color: #E53B3B;
+}
+
+
+
+/*SC-POST-AND-REVIEW-SHORTCODE.PHP*/
+/*SHORTCODE-TRACK.PHP*/
+.shortcode-track {
+    height: 100%;
+    width: 50%;
+}
+
+.shortcode-track-review {
+    width: 100%;
+    height: 250px;
+    overflow: auto
+}
+
+.shortcode-track-review-score {
+    float: right;
+    margin-right: 100px;
+    width: 370px;
+}
+
+.shortcode-track-review-review {
+    float: right;
+    margin-right: 100px;
+    width: 370px;
+    resize: none;
+}
+
+.shortcode-track-form > label {
+    padding-left: 50px;
+}
+
+.shortcode-track-form > input[type=text] {
+    float: right;
+    margin-right: 100px;
+    width: 370px;
+}
+
+.shortcode-track-form > input[type=submit] {
+    float: right;
+    margin-right: 100px;
+    border: none;
+    padding: 3%;
+    font-size: 15px;
+    font-weight: bold;
+    background-color: "";
+}
+
+
+/*SC-POST-AND-REVIEW-SHORTCODE.PHP*/
+/*SHORTCODE-REVIEW.PHP*/
+.shortcode-review {
+    float: center;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.shortcode-review-review {
+    font-family: 'Times New Roman';
+}
+
+.shortcode-review-hr {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.shortcode-review-hr > hr {
+    width: 50%;
+}
+
+
+/*CONFIG-APPEARANCE.PHP*/
+.config-appearance-page > h2 {
+    font-size: 200%;
+}
+
+.config-appearance {
+    margin-bottom: 20px;
+}
+
+.config-appearance-form label {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.config-appearance-form > input[type=submit] {
+    width: 80px;
+    height: 30px;
+    border: none;
+    border-radius: 3px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-right: 10px;
+    background-color: #578AB3;
+}

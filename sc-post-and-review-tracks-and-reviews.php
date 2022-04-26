@@ -1,62 +1,70 @@
 <?php
 
-function list_tracks_and_reviews()
-{
-    $containerOpening = '<div class="wrap" style="width: 40%;">
-                            <h2 style="padding-bottom: 10px;">Tracks</h2>';
-    $containerClosing = '</div>';
+require_once 'stars-score.php';
+require_once 'html/track-wp-admin.php';
+require_once 'html/review-wp-admin.php';
+require_once 'html/admin-tracks-and-reviews.php';
+
+// Rendering Manage Tracks and Reviews page
+function list_tracks_and_reviews() {
 
     global $wpdb;
-    $path = preg_replace('/wp-content.*$/','',__DIR__);
 
-    $trackresult = $wpdb->get_results("SELECT * FROM wp_sctracks");
-    $renderTracks = array();
-    $path = preg_replace('/wp-content.*$/','',__DIR__);
-    $edittrack_path = "http://localhost/plugarit/wp-content/plugins/sc-post-and-review/edittrack";
-    $deletetrack_path = "http://localhost/plugarit/wp-content/plugins/sc-post-and-review/deletetrack";
-    foreach ($trackresult as $print)
-    {
+    // Fetching tracks from database
+    $table_name_tracks = $wpdb->prefix . 'sctracks';
+    $track_result = $wpdb->get_results( "SELECT * FROM $table_name_tracks" );
+    $render_tracks = array();
+    //$edittrack_path = "http://localhost/plugarit/wp-content/plugins/sc-post-and-review/edittrack";
+    $edittrack_path = home_url( 'wp-content/plugins/sc-post-and-review/edittrack' );
+    //$deletetrack_path = "http://localhost/plugarit/wp-content/plugins/sc-post-and-review/html/delete-track.php";
+    $deletetrack_path = home_url( 'wp-content/plugins/sc-post-and-review/html/delete-track.php' );
+    $track_object = new Track_WP_Admin();
+
+    foreach ( $track_result as $print ) {
         $id = $print->id;
         $artist = $print->artistname;
         $track = $print->trackname;
         $shortcode = $print->shortcode;
         $description = $print->description;
-        $iframe = $print->iframe;
 
-        $track_info = <<<HTML
-            <div class="flex-container">
-                <div style="font-weight: bold;">
-                    ID: <br />
-                    Artist: <br />
-                    Track: <br />
-                    Shortcode: <br />
-                    Description: <br />
-                </div>
-                <div>
-                    $id <br />
-                    $artist <br />
-                    $track <br />
-                    $shortcode <br />
-                    $description <br />
-                </div>
-            </div>
-            <div style="margin-top: 10px; margin-bottom: 30px;">
-                <form action=$edittrack_path>
-                    <input type="hidden" name="id" value=$id />
-                    <button class="edit-delete-btn" name="editbtn" style="margin-right: 10px; background-color: #578AB3;">EDIT</button>
-                    <button class="edit-delete-btn" style="background-color: #E53B3B;" formaction="$deletetrack_path">DELETE</button>
-                </form>
-            </div>
-        HTML;
-
-        $renderTracks[] .= $track_info;
+        $render_tracks[] .= $track_object->get_track_wp_admin( $id, $artist, $track, $shortcode, $description, $edittrack_path, $deletetrack_path );
     }
 
     $tracks;
-    foreach($renderTracks as $render)
-    {
+    foreach( $render_tracks as $render ) {
         $tracks .= $render;
     }
 
-    echo $containerOpening . $tracks . $containerClosing;
+    // Fetching reviews from database
+    $table_name_reviews = $wpdb->prefix . 'screviews';
+    $review_result = $wpdb->get_results( "SELECT * FROM $table_name_reviews" );
+    $render_reviews = array();
+    //$deletereview_path = "http://localhost/plugarit/wp-content/plugins/sc-post-and-review/deletereview";
+    $deletereview_path = home_url( 'wp-content/plugins/sc-post-and-review/deletereview' );
+    $review_object = new Review_WP_Admin();
+    foreach ( $review_result as $print ) {
+        $id = $print->id;
+        $track_id = $print->trackId;
+        $reviewer = $print->reviewer;
+        $review = $print->review;
+        $score = $print->score;
+
+        $stars_score = stars_score( $score, 15 ); // Second parameter is size of the stars. 37 is max size.
+
+        $render_reviews[] .= $review_object->get_review_wp_admin( $id, $track_id, $stars_score, $review, $reviewer, $editreview_path, $deletereview_path );
+    }
+
+    $reviews;
+    foreach( $render_reviews as $render ) {
+        $reviews .= $render;
+    }
+
+    // Rendering the page
+    $list_tracks_and_reviews = new Admin_Tracks_And_Reviews();
+    echo $list_tracks_and_reviews->admin_list_tracks_and_reviews($tracks, $reviews);
 }
+
+function load_stylesheet() {
+    wp_enqueue_style( 'pluginStyles', plugins_url( 'css/styles.css', __FILE__ ), '', time() );
+}
+add_action( 'admin_enqueue_scripts', 'load_stylesheet' );

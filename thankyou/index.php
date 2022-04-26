@@ -1,11 +1,9 @@
 <?php
-
 $path = preg_replace('/wp-content.*$/','',__DIR__);
-
 require_once($path . "wp-load.php");
 
 $reviewer = $_GET['reviewer'];
-//TODO: CSS:sä 'font-size' kaksi kertaa, korjaa
+
 echo <<<HTML
     <style>
         .button {
@@ -13,7 +11,6 @@ echo <<<HTML
             width: 500px;
             height: 100px;
             margin-top: 20px;
-            font-size: 15px;
             font-weight: bold;
             font-size: 30px;
         }
