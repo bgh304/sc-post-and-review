@@ -8,6 +8,7 @@ This is still non-working work in progress, so future updates will come.
 
 This plugin uses WP's shortcode to embed Soundcloud track to your Wordpress site, with description about the track, and artist/track names as heading. Tracks and reviews are stored in database.
 
+Below is demo video showing how the plugin works:
 
 https://user-images.githubusercontent.com/57593354/165314346-193bbbc9-2d47-4067-a43e-62383600ea58.mp4
 
