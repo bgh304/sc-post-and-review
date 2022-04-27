@@ -10,6 +10,7 @@ Below is demo video showing how the plugin works:
 
 https://user-images.githubusercontent.com/57593354/165314346-193bbbc9-2d47-4067-a43e-62383600ea58.mp4
 
+NOTE! Plugin folder name must be 'sc-post-and-review'.
 
 ## Authors
 
